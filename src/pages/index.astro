@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/Layout.astro';
+import MenuBar from '../components/MenuBar';
+import Desktop from '../components/Desktop';
+import Dock from '../components/Dock';
+---
+
+<Layout title="Glassmorphic OS">
+  <main class="w-screen h-screen relative overflow-hidden bg-black">
+    <MenuBar client:load />
+    <Desktop client:only="react" />
+    <Dock client:load />
+  </main>
+</Layout>
