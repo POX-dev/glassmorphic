@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, Minus, Maximize2, Hexagon } from 'lucide-react'; // Added Hexagon
+import { X, Minus, Maximize2, Minimize2 } from 'lucide-react'; // Added Minimize2
 import { useStore } from '@nanostores/react'; // Added useStore
-import { type WindowData, focusWindow, closeWindow, updateWindowPos } from '../store/osStore';
+import { type WindowData, focusWindow, closeWindow, updateWindowPos, minimizeWindow, maximizeWindow } from '../store/osStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { glassOpacity } from '../store/settingsStore';
 
@@ -9,6 +9,10 @@ import { glassOpacity } from '../store/settingsStore';
 import Settings from './apps/Settings';
 import Terminal from './apps/Terminal';
 import FileExplorer from './apps/FileExplorer';
+import TextEditor from './apps/TextEditor';
+import Calculator from './apps/Calculator';
+import Notes from './apps/Notes';
+import Browser from './apps/Browser';
 
 export default function Window({ data }: { data: WindowData }) {
   const [isDragging, setIsDragging] = useState(false);
@@ -45,32 +49,34 @@ export default function Window({ data }: { data: WindowData }) {
   }, [isDragging, dragOffset, data.id]);
 
   return (
-    <motion.div
-      initial={{ scale: 0.9, opacity: 0, y: 20 }}
-      animate={{ scale: 1, opacity: 1, y: 0 }}
-      exit={{ scale: 0.95, opacity: 0 }}
-      transition={{ type: "spring", stiffness: 300, damping: 25 }}
-      style={{
-        left: data.x,
-        top: data.y,
-        width: data.width,
-        height: data.height,
-        zIndex: data.zIndex,
-        // We inject the dynamic opacity here:
-        backgroundColor: `rgba(255, 255, 255, ${$opacity / 100})` 
-      }}
-      className="absolute flex flex-col rounded-xl overflow-hidden shadow-2xl backdrop-blur-3xl border border-white/20"
-      onMouseDown={() => focusWindow(data.id)}
-    >
+    <AnimatePresence>
+      {!data.isMinimized && (
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.95, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          style={{
+            left: data.x,
+            top: data.y,
+            width: data.width,
+            height: data.height,
+            zIndex: data.zIndex,
+            // We inject the dynamic opacity here:
+            backgroundColor: `rgba(255, 255, 255, ${$opacity / 100})` 
+          }}
+          className="absolute flex flex-col rounded-xl overflow-hidden shadow-2xl backdrop-blur-3xl border border-white/20"
+          onMouseDown={() => focusWindow(data.id)}
+        >
       {/* Glass Title Bar */}
       <div 
         className="h-10 bg-gradient-to-b from-white/10 to-transparent border-b border-white/10 flex items-center justify-between px-4 cursor-default select-none"
         onMouseDown={handleMouseDown}
       >
         <div className="flex gap-2 window-controls group">
-          <button onClick={(e) => { e.stopPropagation(); closeWindow(data.id); }} className="w-3 h-3 rounded-full bg-[#FF5F57] border border-[#E0443E] shadow-inner" />
-          <button className="w-3 h-3 rounded-full bg-[#FEBC2E] border border-[#D89E24] shadow-inner" />
-          <button className="w-3 h-3 rounded-full bg-[#28C840] border border-[#1AAB29] shadow-inner" />
+          <button onClick={(e) => { e.stopPropagation(); closeWindow(data.id); }} className="w-3 h-3 rounded-full bg-[#FF5F57] border border-[#E0443E] shadow-inner hover:bg-[#ff6b67] transition-colors" />
+          <button onClick={(e) => { e.stopPropagation(); minimizeWindow(data.id); }} className="w-3 h-3 rounded-full bg-[#FEBC2E] border border-[#D89E24] shadow-inner hover:bg-[#fecf3e] transition-colors" />
+          <button onClick={(e) => { e.stopPropagation(); maximizeWindow(data.id); }} className="w-3 h-3 rounded-full bg-[#28C840] border border-[#1AAB29] shadow-inner hover:bg-[#32d74b] transition-colors" />
         </div>
         <span className="text-white/90 text-sm font-medium drop-shadow-sm">{data.title}</span>
         <div className="w-10"></div>
@@ -87,6 +93,14 @@ export default function Window({ data }: { data: WindowData }) {
             <Terminal /> 
           ): data.type === 'finder' ? (
             <FileExplorer /> 
+          ) : data.type === 'editor' ? (
+            <TextEditor windowData={data} />
+          ) : data.type === 'calculator' ? (
+            <Calculator />
+          ) : data.type === 'notes' ? (
+            <Notes />
+          ) : data.type === 'browser' ? (
+            <Browser />
           ) : data.content ? (
             <textarea 
               className="w-full h-full bg-transparent resize-none focus:outline-none font-mono text-sm text-gray-200" 
@@ -102,5 +116,7 @@ export default function Window({ data }: { data: WindowData }) {
         </div>
       </div>
     </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

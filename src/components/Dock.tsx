@@ -1,6 +1,6 @@
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { useRef } from 'react';
-import { Globe, Settings, Terminal, Folder, MessageSquare } from 'lucide-react';
+import { Globe, Settings, Terminal, Folder, MessageSquare, Calculator, StickyNote } from 'lucide-react';
 import { openWindow } from '../store/osStore';
 
 function DockIcon({ icon: Icon, label, onClick, mouseX }: any) {
@@ -36,6 +36,8 @@ export default function Dock() {
 
   const dockApps = [
     { name: 'Finder', icon: Folder, type: 'finder' },
+    { name: 'Calculator', icon: Calculator, type: 'calculator' },
+    { name: 'Notes', icon: StickyNote, type: 'notes' },
     { name: 'Browser', icon: Globe, type: 'browser' },
     { name: 'Terminal', icon: Terminal, type: 'terminal' },
     { name: 'Settings', icon: Settings, type: 'settings' },

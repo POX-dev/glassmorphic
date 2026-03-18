@@ -1,6 +1,6 @@
 import { map } from 'nanostores';
 
-export type WindowType = 'finder' | 'editor' | 'browser' | 'terminal' | 'settings';
+export type WindowType = 'finder' | 'editor' | 'browser' | 'terminal' | 'settings' | 'calculator' | 'notes';
 
 export type WindowData = {
   id: string;
@@ -13,6 +13,8 @@ export type WindowData = {
   height: number;
   zIndex: number;
   isMinimized: boolean;
+  isMaximized: boolean;
+  prevBounds?: { x: number; y: number; width: number; height: number };
 };
 
 export const osStore = map<{
@@ -43,6 +45,7 @@ export const openWindow = (app: Partial<WindowData>) => {
       height: 400,
       zIndex: newZ,
       isMinimized: false,
+      isMaximized: false,
       ...app,
     },
   });
@@ -73,3 +76,44 @@ export const updateWindowPos = (id: string, x: number, y: number) => {
     const w = osStore.get().windows[id];
     if(w) osStore.setKey('windows', { ...osStore.get().windows, [id]: { ...w, x, y } });
 }
+
+export const minimizeWindow = (id: string) => {
+  const store = osStore.get();
+  const window = store.windows[id];
+  if (window) {
+    osStore.setKey('windows', {
+      ...store.windows,
+      [id]: { ...window, isMinimized: !window.isMinimized }
+    });
+  }
+};
+
+export const maximizeWindow = (id: string) => {
+  const store = osStore.get();
+  const window = store.windows[id];
+  if (window) {
+    const isMaximized = !window.isMaximized;
+    const newWindow = {
+      ...window,
+      isMaximized,
+      prevBounds: isMaximized ? { x: window.x, y: window.y, width: window.width, height: window.height } : window.prevBounds
+    };
+
+    if (isMaximized) {
+      newWindow.x = 0;
+      newWindow.y = 48; // Account for menu bar
+      newWindow.width = window.innerWidth || 1200;
+      newWindow.height = (window.innerHeight || 800) - 48;
+    } else if (newWindow.prevBounds) {
+      newWindow.x = newWindow.prevBounds.x;
+      newWindow.y = newWindow.prevBounds.y;
+      newWindow.width = newWindow.prevBounds.width;
+      newWindow.height = newWindow.prevBounds.height;
+    }
+
+    osStore.setKey('windows', {
+      ...store.windows,
+      [id]: newWindow
+    });
+  }
+};

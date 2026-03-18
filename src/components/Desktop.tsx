@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { osStore, openWindow } from '../store/osStore';
 import Window from './Window';
-import { Folder, FileText, Settings as SettingsIcon, Terminal, Globe } from 'lucide-react'; // Renamed icon to avoid conflict
+import { Folder, FileText, Settings as SettingsIcon, Terminal, Globe, Calculator, StickyNote } from 'lucide-react'; // Renamed icon to avoid conflict
 import { getFiles } from '../lib/filesystem';
 import { wallpaper, WALLPAPERS } from '../store/settingsStore';
 
@@ -20,6 +20,8 @@ export default function Desktop() {
 
   const apps = [
     { name: 'Browser', icon: Globe, type: 'browser' },
+    { name: 'Calculator', icon: Calculator, type: 'calculator' },
+    { name: 'Notes', icon: StickyNote, type: 'notes' },
     { name: 'Settings', icon: SettingsIcon, type: 'settings' }, // Type matched to Window.tsx logic
     { name: 'Terminal', icon: Terminal, type: 'terminal' }, // Ready for the terminal app
   ];
